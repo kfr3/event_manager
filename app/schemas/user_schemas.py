@@ -42,6 +42,26 @@ class UserCreate(UserBase):
     password: str = Field(..., example="Secure*1234")
     nickname: Optional[str] = Field(None, min_length=3, pattern=r'^[\w-]+$', example=generate_nickname())
 
+        def _check_complexity(password):
+        # Define password complexity requirements
+        complexity_requirements = [
+            (lambda p: len(p) >= 8, "Password must be at least 8 characters long"),
+            (lambda p: any(char.islower() for char in p), "Password must contain at least one lowercase letter"),
+            (lambda p: any(char.isupper() for char in p), "Password must contain at least one uppercase letter"),
+            (lambda p: any(char.isdigit() for char in p), "Password must contain at least one digit"),
+            (lambda p: any(char in "!@#$%^&*()-_=+[{]}|;:'\",<.>/?\\" for char in p), "Password must contain at least one special character")
+        ]
+
+        # Check if the password meets all requirements
+        for requirement, error_message in complexity_requirements:
+            if not requirement(password):
+                raise ValueError(error_message)
+
+    @validator('password')
+    def validate_password_complexity(cls, v):
+        cls._check_complexity(v)
+        return v
+
 class UserUpdate(UserBase):
     email: Optional[EmailStr] = Field(None, example="john.doe@example.com")
     nickname: Optional[str] = Field(None, min_length=3, pattern=r'^[\w-]+$', example="john_doe123")
