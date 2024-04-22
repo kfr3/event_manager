@@ -5,6 +5,7 @@ from datetime import datetime
 from enum import Enum
 import uuid
 import re
+import bcrypt 
 
 from app.utils.nickname_gen import generate_nickname
 
@@ -61,6 +62,15 @@ class UserCreate(UserBase):
     def validate_password_complexity(cls, v):
         cls._check_complexity(v)
         return v
+
+    @root_validator(pre=True)
+    def hash_password(cls, values):
+        password = values.get('password')
+        if password:
+            # Hash the password using bcrypt
+            hashed_password = bcrypt.hashpw(password.encode('utf-8'), bcrypt.gensalt())
+            values['password'] = hashed_password.decode('utf-8')
+        return values
 
 class UserUpdate(UserBase):
     email: Optional[EmailStr] = Field(None, example="john.doe@example.com")
