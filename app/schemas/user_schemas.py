@@ -96,11 +96,17 @@ class UserUpdate(UserBase):
                 raise ValueError("Nickname already exists")
         return v
 
+        @root_validator(pre=True)
+    def handle_empty_updates(cls, values):
+        # Remove None values from update
+        return {k: v for k, v in values.items() if v is not None}
+    
+
 class UserResponse(UserBase):
     id: uuid.UUID = Field(..., example=uuid.uuid4())
     role: UserRole = Field(default=UserRole.AUTHENTICATED, example="AUTHENTICATED")
     email: EmailStr = Field(..., example="john.doe@example.com")
-    nickname: Optional[str] = Field(None, min_length=3, pattern=r'^[\w-]+$', example=generate_nickname())    
+    nickname: Optional[str] = Field(None, min_length=3, max_length=100, pattern=r'^[\w-]+$', example=generate_nickname())    
     is_professional: Optional[bool] = Field(default=False, example=True)
 
 class LoginRequest(BaseModel):
