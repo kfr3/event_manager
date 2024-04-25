@@ -43,7 +43,7 @@ class UserCreate(UserBase):
     password: str = Field(..., example="Secure*1234")
     nickname: Optional[str] = Field(None, min_length=3, max_length=100, pattern=r'^[\w-]+$', example=generate_nickname())
 
-        def _check_complexity(password):
+    def _check_complexity(password):
         # Define password complexity requirements
         complexity_requirements = [
             (lambda p: len(p) >= 8, "Password must be at least 8 characters long"),
@@ -75,8 +75,8 @@ class UserCreate(UserBase):
 
 class UserUpdate(UserBase):
     email: Optional[EmailStr] = Field(None, example="john.doe@example.com")
-    nickname: Optional[str] = Field(None, min_length=3, max_length=100 pattern=r'^[\w-]+$', example="john_doe123")
-    first_name: Optional[str] = Field(None, example="John")
+    nickname: Optional[str] = Field(None, min_length=3, max_length=100, pattern=r'^[\w-]+$', example="john_doe123")
+    first_name: Optional[str] = Field(None, example="Joh")
     last_name: Optional[str] = Field(None, example="Doe")
     bio: Optional[str] = Field(None, example="Experienced software developer specializing in web applications.")
     profile_picture_url: Optional[str] = Field(None, example="https://example.com/profiles/john.jpg")
@@ -97,9 +97,9 @@ class UserUpdate(UserBase):
         return v
 
         @root_validator(pre=True)
-    def handle_empty_updates(cls, values):
+        def handle_empty_updates(cls, values):
         # Remove None values from update
-        return {k: v for k, v in values.items() if v is not None}
+            return {k: v for k, v in values.items() if v is not None}
     
 
 class UserResponse(UserBase):
